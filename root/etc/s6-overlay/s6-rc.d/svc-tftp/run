@@ -1,0 +1,14 @@
+#!/usr/bin/with-contenv bash
+set -e
+
+TFTP_ROOT="${TFTP_ROOT:-/data}";
+mkdir -p ${TFTP_ROOT}; # ensure exists
+
+TFTPD_ARGS="${TFTPD_ARGS:- --port-range 63050:63100 --secure $TFTP_ROOT}";
+
+exec \
+    in.tftpd \
+    --listen \
+    -u ${S6_USER:-alpine} \
+    ${TFTPD_ARGS} \
+    ;
