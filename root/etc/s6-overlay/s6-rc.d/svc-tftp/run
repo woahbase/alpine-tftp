@@ -2,13 +2,20 @@
 set -e
 
 TFTP_ROOT="${TFTP_ROOT:-/data}";
+TFTP_ADDR="${TFTP_ADDR:-0.0.0.0}";
+TFTP_PORT="${TFTP_PORT:-69}";
+TFTP_PORTRANGE="${TFTP_PORTRANGE:-63050:63100}";
+TFTP_USER="${TFTP_USER:-${S6_USER:-alpine}}"; # or set to 'nobody', user must exist
+
 mkdir -p ${TFTP_ROOT}; # ensure exists
 
-TFTPD_ARGS="${TFTPD_ARGS:- --port-range 63050:63100 --secure $TFTP_ROOT}";
+TFTPD_ARGS="${TFTPD_ARGS:- --secure $TFTP_ROOT}";
 
 exec \
     in.tftpd \
     --listen \
-    -u ${S6_USER:-alpine} \
+    --address "${TFTP_ADDR}:${TFTP_PORT}" \
+    --port-range "${TFTP_PORTRANGE}" \
+    $(if [ "X${EUID}" == "X0" ]; then echo "--user ${TFTP_USER}"; fi) \
     ${TFTPD_ARGS} \
     ;
